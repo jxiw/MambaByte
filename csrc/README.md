@@ -1,6 +1,6 @@
 This kernel is copied from `https://github.com/state-spaces/mamba/tree/main/csrc`
 
-However, to support speculative decoding, we extend the kernel to resume from an existing SSM prefix state. And we support both forward and backward.
+To support speculative decoding, we extend the kernel to resume from an existing SSM prefix state. And we support both forward and backward.
 
 Here is a simple function to test resuming from an existing SSM state.
 

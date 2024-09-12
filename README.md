@@ -26,8 +26,6 @@ nvcc --version
 
 ## Loading model
 
-To load a pretrained `$HOME/mambabyte/pretrained_models/mambabyte_972M.pt`, run:
-
 ```python
 
 ```
@@ -42,7 +40,7 @@ To load a pretrained `$HOME/mambabyte/pretrained_models/mambabyte_972M.pt`, run:
 
 To enable resuming during the parallel scan, we extended the fast CUDA kernel, allowing verification to restart from the mismatched position instead of beginning from the start. 
 
-Check the kernel to support resume from an exisit state in [here](csrc/README.md)
+Check the kernel to support resume from an exist state in [here](csrc/README.md)
 
 ## Extracting module outputs
 
