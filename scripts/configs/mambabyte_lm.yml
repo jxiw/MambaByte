@@ -1,0 +1,28 @@
+general:
+  device: "auto"
+  dtype: "fp32"
+
+model:
+  common:
+    vocab_size: 256
+    d_state: 16
+    d_conv: 4
+    norm_eps: 1.0e-5
+  353M:
+    d_model: 1024
+    num_layers: 53
+    expand: 2
+  972M:
+    d_model: 1792
+    num_layers: 48
+    expand: 2
+
+generation:
+  use_fast_path: True
+  disable_optimizations: False
+  is_generating: True
+
+visualization:
+  use_fast_path: False
+  disable_optimizations: True
+  is_generating: True

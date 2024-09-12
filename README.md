@@ -40,7 +40,7 @@ nvcc --version
 
 To enable resuming during the parallel scan, we extended the fast CUDA kernel, allowing verification to restart from the mismatched position instead of beginning from the start. 
 
-Check the kernel to support resume from an exist state in [here](csrc/README.md)
+Check the kernel to support resume from an exist state in [here](csrc/)
 
 ## Extracting module outputs
 

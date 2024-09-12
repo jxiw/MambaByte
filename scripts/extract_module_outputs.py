@@ -1,0 +1,131 @@
+from argparse import ArgumentParser
+from typing import Optional, Literal, List
+
+import torch
+import yaml
+
+from src.mambabyte.lm import MambaByteLM
+from src.utils.torch_utils import get_device, set_pytorch_backends, set_seed
+from src.utils.utils import dict_to_pickle
+from src.utils.visualization_utils import get_module_outputs
+
+set_pytorch_backends()
+
+
+@torch.no_grad()
+def main(
+    config_path: str,
+    filepath_to_store_outputs: str,
+    prompt: str,
+    layer_idxs: Optional[List[int]] = None,
+    pretrained_model_filepath: Optional[str] = None,
+    model_id: Literal["353M", "972M"] = "972M",
+    module_id: str = "dt_proj",
+    nonlinearity: Optional[str] = None,
+    return_log_probs: bool = True,
+    return_ranks: bool = True,
+    seed: int = 4740,
+) -> None:
+    set_seed(seed)
+
+    with open(config_path, "r") as fp:
+        config = yaml.safe_load(fp)
+    dtype = torch.float32 if config["general"]["dtype"] == "fp32" else torch.bfloat16
+    device = get_device(config["general"]["device"])
+    for key, value in config.items():
+        if isinstance(value, dict):
+            if model_id in value:
+                config[key] = config[key]["common"]
+                config[key].update(value[model_id])
+
+    model = MambaByteLM(dtype=dtype, device=device, **config["model"], **config["visualization"])
+    if pretrained_model_filepath is not None:
+        model.from_pretrained(pretrained_model_filepath)
+
+    if layer_idxs is None:
+        layer_idxs = list(range(config["model"]["num_layers"]))
+    prediction_artefacts = get_module_outputs(
+        model=model,
+        module_id=module_id,
+        layer_idxs=layer_idxs,
+        prompt=prompt,
+        nonlinearity=nonlinearity,
+        return_log_probs=return_log_probs,
+        return_ranks=return_ranks,
+    )
+
+    return_dict = {
+        "prompt": prompt,
+        module_id: model.hooks["outputs"][module_id],
+        "log_probs": prediction_artefacts.log_probs,
+        "ranks": prediction_artefacts.ranks,
+        "model_id": model_id,
+        "module_id": module_id,
+        "layer_idxs": layer_idxs,
+        "pretrained_model_filepath": pretrained_model_filepath,
+    }
+    dict_to_pickle(filepath_to_store_outputs=filepath_to_store_outputs, dict_to_write=return_dict)
+    print(f"stored the outputs to {filepath_to_store_outputs}")
+
+
+if __name__ == "__main__":
+    parser = ArgumentParser(description="Extract model outputs from the pretrained MambaByte model.")
+
+    parser.add_argument("--config_path", type=str, help="Path to the config file.", required=True)
+    parser.add_argument(
+        "--filepath_to_store_outputs",
+        type=str,
+        help="Basepath to store the outputs (e.g., `/tmp/tg352.pkl`).",
+        required=True,
+    )
+    parser.add_argument(
+        "--prompt",
+        type=str,
+        help="The input prompt to autocomplete; if not specified, with default to an empty string.",
+        required=True,
+    )
+    parser.add_argument(
+        "--layer_idxs",
+        nargs="+",
+        type=int,
+        help="Layer indices to extract delta from; if unspecified, module outputs from all layers are extracted.",
+    )
+    parser.add_argument(
+        "--pretrained_model_filepath",
+        type=str,
+        help="Path to pretrained model file; if not provided, a random initialization will be used.",
+        default=None,
+    )
+    parser.add_argument("--model_id", choices=["353M", "972M"], help="The MambaByte model identifier.", default="972M")
+    parser.add_argument(
+        "--module_id",
+        type=str,
+        help="The MambaByte module identifier; e.g., `x_proj`, `dt_proj`, `out_proj`, etc.",
+        required=True,
+    )
+    parser.add_argument(
+        "--nonlinearity", type=str, help="Additional nonlinearity to be applied (if any) to the module output."
+    )
+    parser.add_argument("--return_log_probs", action="store_true", help="Indicator to return log probabilities.")
+    parser.add_argument(
+        "--return_ranks",
+        action="store_true",
+        help="Indicator to return the rank of the true token using the predicted probabilities.",
+    )
+    parser.add_argument("--seed", type=int, help="Random seed (for reproducibility).", default="4740")
+
+    args = parser.parse_args()
+
+    main(
+        config_path=args.config_path,
+        filepath_to_store_outputs=args.filepath_to_store_outputs,
+        prompt=args.prompt,
+        layer_idxs=args.layer_idxs,
+        pretrained_model_filepath=args.pretrained_model_filepath,
+        model_id=args.model_id,
+        module_id=args.module_id,
+        nonlinearity=args.nonlinearity,
+        return_log_probs=args.return_log_probs,
+        return_ranks=args.return_ranks,
+        seed=args.seed,
+    )
