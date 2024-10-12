@@ -94,7 +94,6 @@ def bpb_from_ppl(ppl, LT_by_LB):
 # pg19 train: 1973048393, val: 3007061, test: 6965511,
 # We count the number of byte
 # pg19 train: 11677824216, val: 17733002, test: 41289101
-# We count the number of subwords using a SentencePiece tokenizer (32k vocab size). 
 
 # LT_by_LB values for the PG-19 dataset (word-level) are precomputed for training, validation, and test sets.
 pg19_train_LT_by_LB = 1973048393 / 11677824216
@@ -102,7 +101,7 @@ pg19_val_LT_by_LB = 3007061 / 17733002
 pg19_test_LT_by_LB = 6965511 / 41289101
 
 # LT_by_LB values for the PG-19 dataset (subword-level) are precomputed for training, validation, and test sets.
-# We count the number of tokens using a subword tokenizer (see following section for that),
+# We count the number of tokens using a 32k subword tokenizer (see following section for that),
 # pg19 train: 2914600562, val: 4357506, test: 10282006
 pg19_train_LT_by_LB_subword = 1973048393 / 2914600562
 pg19_val_LT_by_LB_subword = 3007061/ 4357506
