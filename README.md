@@ -54,17 +54,17 @@ sample = model.generate(
 print(bytes(sample.sequences[0].tolist()).decode('utf-8'))
 ```
 
-Stories: [MambaByte_Arxiv](https://huggingface.co/JunxiongWang/MambaByte_Stories)
+Stories: [MambaByte_Stories](https://huggingface.co/JunxiongWang/MambaByte_Stories)
 
 Arxiv: [MambaByte_Arxiv](https://huggingface.co/JunxiongWang/MambaByte_Arxiv)
 
 Books: [MambaByte_Books](https://huggingface.co/JunxiongWang/MambaByte_Books)
 
-PG19 972M: [MambaByte_Stories](https://huggingface.co/JunxiongWang/MambaByte_PG19_972M)
+PG19 972M: [MambaByte_PG19_972M](https://huggingface.co/JunxiongWang/MambaByte_PG19_972M)
 
 PG19 353M: [MambaByte_PG19_353M](https://huggingface.co/JunxiongWang/MambaByte_PG19_353M)
 
-# Compute bit-per-byte and PPL
+## Compute bit-per-byte and PPL
 
 ```python
 # This script defines functions to convert between two commonly used metrics in language model evaluation: 
@@ -117,7 +117,7 @@ ppl_from_byte_ce(byte_ce=2.399497291852516, LT_by_LB=pg19_test_LT_by_LB_subword)
 ppl_from_byte_ce(byte_ce=0.5901387288495581, LT_by_LB=pg19_test_LT_by_LB)
 ```
 
-### Subword tokenizer
+## Subword tokenizer
 
 We follow Rae et al. (2020) to create a tokenizer using the PG-19 training set.
 
